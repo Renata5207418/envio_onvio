@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en"> <!-- Define o idioma padrão como inglês -->
+<head>
+    <!-- Metadados básicos -->
+    <meta charset="UTF-8"> <!-- Define a codificação de caracteres -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Responsividade -->
+    <title>Upload de Documentos</title>
+
+    <!-- Link para a folha de estilos personalizada -->
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    <!-- Link para os ícones Font Awesome (olhos para exibir/ocultar senha) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- Container principal -->
+    <div class="container">
+        <!-- Logo do sistema -->
+        <img src="{{ url_for('static', filename='image/logosc.png') }}" alt="Logo do sistema Domínio" class="logo">
+
+        <!-- Título do formulário -->
+        <h1>Upload de Documentos - Sistema Domínio</h1>
+
+        <!-- Formulário de Upload -->
+        <form id="upload-form" method="post" enctype="multipart/form-data" action="/upload">
+
+            <!-- ===================== -->
+            <!-- Campo de Login Domínio -->
+            <!-- ===================== -->
+            <label for="login">Login Domínio:</label>
+            <input type="text" id="login" name="login" placeholder="Digite seu login" required>
+
+            <!-- ===================== -->
+            <!-- Campo de Senha Domínio -->
+            <!-- ===================== -->
+            <label for="senha">Senha Domínio:</label>
+            <div class="senha-container">
+                <!-- Campo para senha protegida -->
+                <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
+
+                <!-- Botão para alternar visibilidade da senha -->
+                <span class="toggle-senha" onclick="toggleSenha('senha', 'toggleIcon')">
+                    <i id="toggleIcon" class="fas fa-eye-slash"></i>
+                </span>
+            </div>
+
+            <!-- ===================== -->
+            <!-- Campo de Senha Onvio -->
+            <!-- ===================== -->
+            <label for="senha_onvio">Senha Onvio:</label>
+            <div class="senha-container">
+                <!-- Campo para senha protegida -->
+                <input type="password" id="senha_onvio" name="senha_onvio" placeholder="Digite sua senha do Onvio" required>
+
+                <!-- Botão para alternar visibilidade da senha -->
+                <span class="toggle-senha" onclick="toggleSenha('senha_onvio', 'toggleIconOnvio')">
+                    <i id="toggleIconOnvio" class="fas fa-eye-slash"></i>
+                </span>
+            </div>
+
+            <!-- ===================== -->
+            <!-- Campo de Data de Vencimento -->
+            <!-- ===================== -->
+            <label for="data_vencimento">Data de Vencimento:</label>
+            <input type="date" id="data_vencimento" name="data_vencimento"><br><br>
+
+            <!-- ===================== -->
+            <!-- Área para Upload de Arquivos -->
+            <!-- ===================== -->
+            <label class="upload-area" for="files">
+                Clique ou arraste os arquivos PDF aqui
+            </label>
+            <!-- Input oculto para upload de arquivos -->
+            <input type="file" id="files" name="files" accept=".pdf" multiple required>
+
+            <!-- Lista dinâmica para exibir os arquivos carregados -->
+            <div id="file-list" style="margin-top: 10px; font-size: 14px; color: #333;"></div>
+
+            <!-- ===================== -->
+            <!-- Botão de Envio -->
+            <!-- ===================== -->
+            <button type="submit" id="submit-btn">Enviar</button>
+        </form>
+
+        <!-- ===================== -->
+        <!-- Área para Feedback -->
+        <!-- ===================== -->
+        <div id="feedback" style="margin-top: 20px;"></div>
+    </div>
+
+    <!-- ===================== -->
+    <!-- Scripts -->
+    <!-- ===================== -->
+    <!-- Arquivo JavaScript para interatividade -->
+    <script src="/static/js/scripts.js"></script>
+</body>
+</html>

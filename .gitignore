@@ -1,0 +1,45 @@
+ # 🛑 Arquivos de cache e compilação do Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+
+# 🛑 Logs e arquivos temporários
+*.log
+*.tmp
+*.bak
+*.swp
+
+# 🛑 Ambientes virtuais
+venv/
+.env
+*.env
+
+# 🛑 IDEs e editores
+.vscode/
+.idea/
+*.sublime-workspace
+
+# 🛑 Configurações locais e arquivos sensíveis
+*.local
+*.secret
+*.config
+
+# 🛑 Arquivos gerados automaticamente
+.DS_Store
+Thumbs.db
+
+# 🛑 Build
+dist/
+build/
+
+# 🛑 Arquivos de dependências
+Pipfile.lock
+poetry.lock
+
+# 🛑 Logs detalhados específicos do projeto
+logs_detalhados.json
+arquivos_organizados.json
+

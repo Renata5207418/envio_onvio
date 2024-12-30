@@ -1,0 +1,179 @@
+/*
+Arquivo: style.css
+Descrição: Estilização do sistema de upload e publicação de documentos.
+Autor: Renata Scharf
+Data: Dezembro/2024
+Versão: 1.0.0
+*/
+
+/* ========================= */
+/*        GERAL              */
+/* ========================= */
+/* Estilização padrão do corpo da página */
+body {
+    font-family: Arial, sans-serif; /* Fonte padrão */
+    background-color: #A9A9A9; /* Cinza claro */
+    color: #333; /* Texto escuro */
+    margin: 0;
+    padding: 0;
+}
+
+/* ========================= */
+/*       CONTAINER           */
+/* ========================= */
+/* Estilização principal do bloco central */
+.container {
+    max-width: 600px; /* Limita a largura */
+    margin: 50px auto; /* Centraliza verticalmente e horizontalmente */
+    background: #fff; /* Fundo branco */
+    padding: 20px;
+    border-radius: 8px; /* Bordas arredondadas */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
+/* ========================= */
+/*       LOGO                */
+/* ========================= */
+.logo {
+    display: block;
+    margin: 0 auto 20px; /* Centraliza a logo */
+    max-width: 120px; /* Define o tamanho máximo */
+}
+
+/* ========================= */
+/*       CABEÇALHO           */
+/* ========================= */
+h1 {
+    text-align: center; /* Centraliza o texto */
+    color: #f0c808; /* Cor amarela */
+}
+
+/* ========================= */
+/*        FORMULÁRIO         */
+/* ========================= */
+/* Layout flexível e em coluna */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Labels dos campos */
+label {
+    margin-bottom: 8px; /* Espaçamento abaixo */
+    font-weight: bold;
+    color: #333; /* Texto escuro */
+}
+
+/* Campos de entrada */
+input[type="text"],
+input[type="password"],
+input[type="file"] {
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc; /* Borda cinza clara */
+    border-radius: 4px; /* Bordas arredondadas */
+    background-color: #f9f9f9; /* Fundo claro */
+}
+
+/* ========================= */
+/*        BOTÃO              */
+/* ========================= */
+button {
+    width: 100%; /* Botão ocupa toda a largura */
+    padding: 10px;
+    background-color: #333; /* Fundo escuro */
+    color: white; /* Texto branco */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer; /* Indica clicabilidade */
+    font-size: 16px;
+}
+
+/* Efeito hover no botão */
+button:hover {
+    background-color: #555; /* Fundo cinza mais claro */
+}
+
+/* ========================= */
+/*       FEEDBACK            */
+/* ========================= */
+/* Estilização geral do feedback */
+#feedback {
+    padding: 10px;
+    margin-top: 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    text-align: center;
+}
+
+/* Sucesso */
+#feedback.sucesso {
+    background-color: #d4edda; /* Verde claro */
+    color: #155724; /* Texto verde escuro */
+    border: 1px solid #c3e6cb;
+}
+
+/* Erro */
+#feedback.erro {
+    background-color: #f8d7da; /* Vermelho claro */
+    color: #721c24; /* Texto vermelho escuro */
+    border: 1px solid #f5c6cb;
+}
+
+/* Carregando */
+#feedback.carregando {
+    background-color: #fff3cd; /* Amarelo claro */
+    color: #856404; /* Texto amarelo escuro */
+    border: 1px solid #ffeeba;
+}
+
+/* ========================= */
+/*    DETALHES DO FEEDBACK   */
+/* ========================= */
+#feedback ul {
+    list-style-type: none; /* Remove marcadores */
+    padding: 0;
+    margin-top: 10px;
+}
+
+#feedback ul li {
+    padding: 5px 0;
+    border-bottom: 1px solid #eaeaea; /* Linha separadora */
+    font-size: 14px;
+    color: #333;
+}
+
+/* Remove linha da última lista */
+#feedback ul li:last-child {
+    border-bottom: none;
+}
+
+/* Erro dentro da lista */
+#feedback ul li.erro {
+    color: #721c24; /* Vermelho */
+    font-weight: bold; /* Destaque */
+}
+
+/* ========================= */
+/*   ÁREA DE UPLOAD          */
+/* ========================= */
+#files {
+    display: none; /* Oculta o input padrão */
+}
+
+/* Área personalizada para upload */
+.upload-area {
+    border: 2px dashed #ccc; /* Borda tracejada */
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    color: #555; /* Texto cinza escuro */
+    font-size: 16px;
+    cursor: pointer; /* Indica clicabilidade */
+    margin-bottom: 20px;
+}
+
+/* Efeito hover na área de upload */
+.upload-area:hover {
+    background-color: #f9f9f9; /* Fundo claro ao passar o mouse */
+}
