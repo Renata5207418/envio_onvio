@@ -1,0 +1,360 @@
+/* ========================= */
+/*        RESET GLOBAL       */
+/* ========================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ========================= */
+/*     BODY E BACKGROUND     */
+/* ========================= */
+body {
+  font-family: Arial, serif;
+  color: #000;
+  margin: 0;
+  background-color: #f9f9f9;
+}
+
+/* ========================= */
+/*       BARRA DE TOPO       */
+/* ========================= */
+.top-bar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between; /* espaço entre esquerda e direita */
+  align-items: center;
+  padding:18px 20px;
+  background-color: rgba(105, 105, 105, 0.5); /* semitransparente */
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  position: relative;
+  z-index: 9999;
+}
+
+/* Lado esquerdo (ícones / texto) */
+.top-left {
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  margin-right: 15px;
+  margin-top: 4px;
+}
+
+/* Texto de boas-vindas em preto */
+.welcome-text {
+  font-weight: bold;
+  font-size: 0.95rem;
+  margin-left: 5px;
+  margin-top: 4px;
+  color: #000;
+}
+
+/* Lado direito (botões) */
+.top-right {
+  display: flex;
+  align-items: center;
+  gap: 5px; /* espaço entre os botões */
+}
+
+/* Botões no topo */
+.download-btn, .logout-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.download-btn img, .logout-btn img {
+  width: 24px;
+  height: 24px;
+  transition: opacity 0.3s ease;
+}
+
+.download-btn:hover img, .logout-btn:hover img {
+  opacity: 0.7;
+}
+
+.badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* ========================= */
+/*       CONTAINER GERAL     */
+/* ========================= */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  position: relative;
+  margin-top: 40px; /* Agora um pouco menor que 70px */
+  z-index: 1;
+}
+
+.container h2 {
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 1.2rem;
+  color: #000;
+}
+
+/* ========================= */
+/*  FORMULÁRIO EM 2 COLUNAS  */
+/* ========================= */
+.form-duas-colunas {
+  display: flex;
+  gap: 20px;         /* espaço horizontal entre colunas */
+  width: 100%;
+  max-width: 900px;  /* ajuste conforme desejar */
+  margin-bottom: 40px; /* espaçamento final */
+}
+
+/* Cada coluna */
+.col-esquerda,
+.col-direita {
+  flex: 1;
+  background-color: #fff;  /* fundo branco */
+  border: 1px solid #ddd;  /* borda cinza */
+  border-radius: 6px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-sizing: border-box;
+}
+
+.col-esquerda label,
+.col-direita label {
+  display: block;
+  margin-bottom: 5px;
+  margin-top: 10px; /* espaçamento entre campos */
+  font-weight: bold;
+  color: #000;
+}
+
+.col-esquerda input[type="text"],
+.col-esquerda input[type="password"],
+.col-esquerda input[type="date"],
+.col-direita input[type="text"],
+.col-direita input[type="password"],
+.col-direita input[type="date"],
+.col-direita select {
+  width: 100%;
+  font-size: 0.9rem;
+  font-family: Arial, sans-serif;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  background: #fff;
+  color: #000;
+}
+
+/* ========================= */
+/*       DROPZONE ETC.       */
+/* ========================= */
+.dropzone {
+  height: 100px;
+  margin-bottom: 10px;
+  padding: 20px;
+  border: 2px dashed #bbb;
+  border-radius: 4px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.3s;
+  background-color: #fefefe;
+}
+
+.dropzone:hover {
+  border-color: #666;
+}
+
+.dropzone p {
+  color: #999;
+  margin: 0;
+}
+
+.file-list-container {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  max-height: 120px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+
+.file-list-container::-webkit-scrollbar {
+  width: 8px;
+}
+.file-list-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+.file-list-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+.file-list-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* ========================= */
+/*      BOTÃO DE ENVIO       */
+/* ========================= */
+#submitButton {
+  width: 100%;
+  padding: 12px;
+  background: #FFC91C;  /* amarelo */
+  color: #000;          /* texto preto */
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+  margin-top: 10px;
+}
+
+#submitButton:hover {
+  background: #e0a606;
+}
+
+/* ========================= */
+/*          MODAL            */
+/* ========================= */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 10000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  overflow: auto;
+}
+
+.modal-content {
+  background-color: #fff;
+  font-family: Arial, sans-serif;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 6px;
+  width: 50%;
+  max-width: 600px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  position: relative;
+}
+
+.close {
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #aaa;
+  transition: color 0.2s;
+}
+.close:hover {
+  color: #000;
+}
+
+.modal-content label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #000;
+  margin-top: 10px;
+}
+
+.modal-content select,
+.modal-content textarea {
+  width: 100%;
+  font-family: Arial, serif;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+  margin-bottom: 10px;
+  resize: vertical;
+  color: #000;
+  background: #fff;
+}
+
+.modal-content button {
+  background: #FFC107;
+  color: #000;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 8px;
+  margin-top: 5px;
+  transition: background 0.3s;
+}
+
+.modal-content button:hover {
+  background: #e0a606;
+}
+/* ========================= */
+/*     BARRA DE ROLAGEM      */
+/* ========================= */
+/* Largura/altura da barra de rolagem */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px; /* se quiser estilizar o scrollbar horizontal */
+}
+
+/* Fundo do “trilho” */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Parte que se move (thumb) */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+/* Efeito hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* ========================= */
+/*       RESPONSIVIDADE      */
+/* ========================= */
+@media (max-width: 768px) {
+  .form-duas-colunas {
+    flex-direction: column;
+  }
+  .col-esquerda, .col-direita {
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .modal-content {
+    width: 90%;
+    max-width: 90%;
+    margin-top: 20%;
+  }
+}

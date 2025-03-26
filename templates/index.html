@@ -1,97 +1,100 @@
 <!DOCTYPE html>
-<html lang="en"> <!-- Define o idioma padrão como inglês -->
+<html lang="pt-BR">
 <head>
-    <!-- Metadados básicos -->
-    <meta charset="UTF-8"> <!-- Define a codificação de caracteres -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Responsividade -->
-    <title>Upload de Documentos</title>
-
-    <!-- Link para a folha de estilos personalizada -->
-    <link rel="stylesheet" href="/static/css/style.css">
-
-    <!-- Link para os ícones Font Awesome (olhos para exibir/ocultar senha) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <meta charset="UTF-8" />
+  <title>Posta Onvio</title>
+  <link rel="stylesheet" href="static/css/index.css">
 </head>
 <body>
-    <!-- Container principal -->
-    <div class="container">
-        <!-- Logo do sistema -->
-        <img src="{{ url_for('static', filename='image/logosc.png') }}" alt="Logo do sistema Domínio" class="logo">
+  <!-- Barra de topo -->
+  <header class="top-bar">
+    <div class="top-left">
+      <img src="static/image/user-solid.svg" alt="Ícone de usuário" class="icon" id="userIcon" />
+      <span class="welcome-text" id="welcomeText">Bem-vindo, {{ user }}!</span>
+    </div>
+    <div class="top-right">
+      <div id="downloadContainer" style="position: relative; display: inline-block;">
+        <img src="static/image/preview.png" alt="Download" class="icon" id="downloadIcon" title="Conferir Envios" />
+        <span id="notificationBadge" class="badge" style="display: none;">!</span>
+      </div>
+      <button id="logoutButton" class="logout-btn" title="Logout">
+        <img src="static/image/right-from-bracket-solid.svg" alt="Logout" class="icon" />
+      </button>
+    </div>
+  </header>
 
-        <!-- Título do formulário -->
-        <h1>Upload de Documentos - Sistema Domínio</h1>
+  <!-- Modal de Comparação de Listas -->
+  <div id="comparisonModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <span id="closeComparisonModal" class="close">&times;</span>
+      <h2>Comparar Listas de Documentos</h2>
+      <label for="listaSelect">Selecione a lista para comparar:</label>
+      <select id="listaSelect">
+        <option value="">Carregando listas...</option>
+      </select>
+      <button id="deleteListButton">Excluir Lista Selecionada</button>
+      <br><br>
+      <label for="listaTexto">Cole a lista de documentos (um por linha):</label>
+      <textarea id="listaTexto" rows="8" style="width: 100%;" placeholder="Cole aqui a lista de documentos"></textarea>
+      <br>
+      <button id="compareButton">Comparar Listas</button>
+      <button id="downloadExcelBtn" style="background-color:#4CAF50; color:white; border:none; padding:8px 16px; border-radius:5px; cursor:pointer;">
+        Baixar Excel
+      </button>
+      <div id="comparisonResult" style="margin-top: 15px;"></div>
+    </div>
+  </div>
 
-        <!-- Formulário de Upload -->
-        <form id="upload-form" method="post" enctype="multipart/form-data" action="/upload">
 
-            <!-- ===================== -->
-            <!-- Campo de Login Domínio -->
-            <!-- ===================== -->
-            <label for="login">Login Domínio:</label>
-            <input type="text" id="login" name="login" placeholder="Digite seu login" required>
+<main class="container">
+  <h2>Postagem de Documentos Onvio</h2>
 
-            <!-- ===================== -->
-            <!-- Campo de Senha Domínio -->
-            <!-- ===================== -->
-            <label for="senha">Senha Domínio:</label>
-            <div class="senha-container">
-                <!-- Campo para senha protegida -->
-                <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
+  <!-- Form principal, contendo duas colunas -->
+  <form id="indexForm" class="form-duas-colunas">
+    <!-- Coluna da esquerda -->
+    <div class="col-esquerda">
+      <label for="loginDominio">Login Domínio:</label>
+      <input type="text" id="loginDominio" name="loginDominio" placeholder="Digite seu login" required>
 
-                <!-- Botão para alternar visibilidade da senha -->
-                <span class="toggle-senha" onclick="toggleSenha('senha', 'toggleIcon')">
-                    <i id="toggleIcon" class="fas fa-eye-slash"></i>
-                </span>
-            </div>
+      <label for="senhaDominio">Senha Domínio:</label>
+      <input type="text" id="senhaDominio" name="senhaDominio" placeholder="Digite sua senha" required>
 
-            <!-- ===================== -->
-            <!-- Campo de Senha Onvio -->
-            <!-- ===================== -->
-            <label for="senha_onvio">Senha Onvio:</label>
-            <div class="senha-container">
-                <!-- Campo para senha protegida -->
-                <input type="password" id="senha_onvio" name="senha_onvio" placeholder="Digite sua senha do Onvio" required>
-
-                <!-- Botão para alternar visibilidade da senha -->
-                <span class="toggle-senha" onclick="toggleSenha('senha_onvio', 'toggleIconOnvio')">
-                    <i id="toggleIconOnvio" class="fas fa-eye-slash"></i>
-                </span>
-            </div>
-
-            <!-- ===================== -->
-            <!-- Campo de Data de Vencimento -->
-            <!-- ===================== -->
-            <label for="data_vencimento">Data de Vencimento:</label>
-            <input type="date" id="data_vencimento" name="data_vencimento"><br><br>
-
-            <!-- ===================== -->
-            <!-- Área para Upload de Arquivos -->
-            <!-- ===================== -->
-            <label class="upload-area" for="files">
-                Clique ou arraste os arquivos PDF aqui
-            </label>
-            <!-- Input oculto para upload de arquivos -->
-            <input type="file" id="files" name="files" accept=".pdf" multiple required>
-
-            <!-- Lista dinâmica para exibir os arquivos carregados -->
-            <div id="file-list" style="margin-top: 10px; font-size: 14px; color: #333;"></div>
-
-            <!-- ===================== -->
-            <!-- Botão de Envio -->
-            <!-- ===================== -->
-            <button type="submit" id="submit-btn">Enviar</button>
-        </form>
-
-        <!-- ===================== -->
-        <!-- Área para Feedback -->
-        <!-- ===================== -->
-        <div id="feedback" style="margin-top: 20px;"></div>
+      <label for="senhaOnvio">Senha Onvio:</label>
+      <input type="text" id="senhaOnvio" name="senhaOnvio" placeholder="Digite sua senha Onvio" required>
     </div>
 
-    <!-- ===================== -->
-    <!-- Scripts -->
-    <!-- ===================== -->
-    <!-- Arquivo JavaScript para interatividade -->
-    <script src="/static/js/scripts.js"></script>
+    <!-- Coluna da direita -->
+    <div class="col-direita">
+      <label for="nomeJsonComparacao">Nome para o arquivo de Comparação (opcional**):</label>
+      <small style="font-size: 11px;">**Caso não insira ele será criado com data e hora do envio.</small>
+      <br>
+      <input type="text" id="nomeJsonComparacao" placeholder="Opcional: Ex. Lista_Envio_25Mar">
+
+      <label for="dataVencimento">Data de Vencimento:</label>
+      <input type="date" id="dataVencimento" name="dataVencimento">
+
+      <label for="fiscalOpcao" id="fiscalOpcaoLabel" style="display: none;">Selecione a opção de Caminho:</label>
+      <select id="fiscalOpcao" name="fiscalOpcao" style="display: none;">
+        <option value="">-- Selecione --</option>
+        <option value="Impostos">IMPOSTOS</option>
+        <option value="Parcelamentos">PARCELAMENTOS</option>
+        <option value="Retenções">RETENÇÕES</option>
+      </select>
+
+      <label for="anexos">Arraste seus arquivos ou clique aqui:</label>
+      <div id="dropzone" class="dropzone">
+        <p>Arraste seus arquivos ou clique aqui</p>
+      </div>
+      <input type="file" id="anexos" name="files[]" multiple style="display: none;">
+      <div id="fileListContainer" class="file-list-container">
+        <p>Nenhum arquivo adicionado ainda.</p>
+      </div>
+
+      <button type="submit" id="submitButton">Enviar</button>
+    </div>
+
+  </form>
+</main>
+  <script src="static/js/index.js"></script>
 </body>
 </html>

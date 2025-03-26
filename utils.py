@@ -1,38 +1,32 @@
 import pyautogui
+from datetime import datetime
 from pywinauto import Application, findwindows
 import subprocess
 import time
 
-"""
-Arquivo: utils.py
-Descrição: Classe para automação de publicação de documentos no sistema Domínio.
-Autor: Renata Scharf
-Data: Dezembro/2024
-Versão: 1.0.0
-
-Dependências:
-- pyautogui
-- pywinauto
-- subprocess
-- time
-
-Funcionalidades:
-- Login no sistema Domínio.
-- Upload de múltiplos arquivos organizados por empresa.
-- Seleção de pastas e estrutura automática no sistema.
-- Tratamento de erros e logs detalhados.
-
-"""
-
 
 class PostaDocumentos:
     """
-       Classe responsável por automatizar a publicação de documentos no sistema Domínio.
+    Classe responsável por automatizar a publicação de documentos no sistema Domínio.
+    Utiliza a configuração do usuário (obtida no config.py) para definir os caminhos,
+    onde o 'usuário_web' define a configuração (caminho executável, pastas, etc.) e o
+    'usuário_dominio' é o login que será utilizado no sistema Domínio.
     """
-    def __init__(self, caminho_executavel, usuario, senha_dominio, senha_onvio, caminho_documento, nome_documento, ano,
-                 mes_ano, empresa, data_vencimento):
-        self.caminho_executavel = caminho_executavel
-        self.usuario = usuario
+
+    def __init__(self, config_usuario, usuario_web, usuario_dominio, senha_dominio, senha_onvio,
+                 caminho_documento, nome_documento, ano, mes_ano, empresa, data_vencimento, opcao=None):
+        """
+        Parâmetros:
+          - config_usuario: dicionário com a configuração do usuário (extraído do USERS_CONFIG).
+          - usuario_web: usuário que define qual configuração utilizar.
+          - usuario_dominio: usuário para login no sistema Domínio.
+          - senha_dominio, senha_onvio: senhas para os respectivos logins.
+          - caminho_documento, nome_documento, ano, mes_ano, empresa, data_vencimento: demais parâmetros do robô.
+          - opcao: para usuários com "pastas_opcoes", indica qual opção utilizar (ex.: "Impostos").
+        """
+        self.config = config_usuario
+        self.usuario_web = usuario_web
+        self.usuario_dominio = usuario_dominio
         self.senha_dominio = senha_dominio
         self.senha_onvio = senha_onvio
         self.caminho_documento = caminho_documento
@@ -41,6 +35,10 @@ class PostaDocumentos:
         self.mes_ano = mes_ano
         self.empresa = empresa
         self.data_vencimento = data_vencimento
+        self.opcao = opcao
+
+        # Obtém o caminho do executável a partir da configuração
+        self.caminho_executavel = self.config.get("caminho_executavel")
 
     def processar(self):
         """
@@ -60,21 +58,14 @@ class PostaDocumentos:
         try:
             print(f"Processando múltiplos arquivos para a empresa {codigo_empresa}...")
 
-            # Combina os caminhos dos arquivos em uma string única separada por ponto e vírgula
-            caminhos_combinados = ";".join([arquivo["caminho_arquivo"] for arquivo in arquivos]) + ";"
-
             # Atualiza os atributos necessários
             self.empresa = codigo_empresa
-            self.caminho_documento = caminhos_combinados
 
             # Extrai o ano e o mês do primeiro arquivo para a pasta
             primeiro_arquivo = arquivos[0]["nome_arquivo"]
             partes = primeiro_arquivo.split('-')[-1].split('.')[0]
             self.mes_ano = f"{partes[:2]}.{partes[2:]}"
             self.ano = partes[2:]
-
-            print(f"Caminhos combinados: {self.caminho_documento}")
-            print(f"Mes/Ano: {self.mes_ano}, Ano: {self.ano}")
 
             # Acessa o campo de upload e envia todos os arquivos juntos
             self.entrar_no_campo_upload()
@@ -85,7 +76,9 @@ class PostaDocumentos:
             raise
 
     def abrir_sistema(self):
-        """Abre o sistema Domínio."""
+        """
+         Abre o sistema Domínio para iniciar o processo de postagem.
+         """
         try:
             print("Abrindo o Sistema Domínio...")
             subprocess.Popen([self.caminho_executavel, '/escrita'])
@@ -95,7 +88,9 @@ class PostaDocumentos:
             print(f"Erro ao tentar abrir o sistema: {e}")
 
     def fazer_login(self):
-        """Realiza o login no sistema Domínio."""
+        """
+        Realiza o login no sistema Domínio utilizando as credenciais fornecidas.
+        """
         try:
             print("Tentando login no sistema Domínio...")
             app = Application(backend="uia").connect(path=self.caminho_executavel)
@@ -105,9 +100,9 @@ class PostaDocumentos:
             # Preencher usuário
             usuario_field = login_window.child_window(auto_id="1005", control_type="Edit")
             usuario_field.click_input(double=True)
-            usuario_field.type_keys("{DEL}")  # Limpa o campo
-            usuario_field.type_keys(self.usuario, with_spaces=True)
-            print(f"Usuário inserido.")
+            usuario_field.type_keys("{DEL}")
+            usuario_field.type_keys(self.usuario_dominio, with_spaces=True)
+            print(f"Usuário {self.usuario_dominio} inserido.")
 
             # Preencher senha
             login_window.child_window(auto_id="1007", control_type="Edit").type_keys(self.senha_dominio,
@@ -163,7 +158,10 @@ class PostaDocumentos:
             else:
                 raise Exception("Botão 'Publicar' não encontrado.")
 
-            time.sleep(3)
+            time.sleep(2)
+            pyautogui.press("enter")
+            time.sleep(2)
+            pyautogui.press("esc")
 
         except Exception as e:
             print(f"Erro ao entrar no campo de upload: {e}")
@@ -178,6 +176,16 @@ class PostaDocumentos:
             # Preencher o campo do caminho do(s) documento(s)
             campo_caminho_documentos = janela_upload.child_window(auto_id="1013", control_type="Edit")
             if campo_caminho_documentos.exists(timeout=10):
+                # Verifica se o campo já está preenchido
+                valor_atual = campo_caminho_documentos.get_value()
+                if valor_atual:
+                    print(f"[AVISO] O campo de caminho já está preenchido com: {valor_atual}."
+                          f" Reiniciando a janela de upload.")
+                    pyautogui.press("esc")
+                    time.sleep(2)
+                    self.entrar_no_campo_upload()
+                    return
+                # Se o campo estiver vazio, preenche normalmente
                 campo_caminho_documentos.click_input()
                 campo_caminho_documentos.type_keys(self.caminho_documento, with_spaces=True)
                 print("Caminho do documento preenchido.")
@@ -206,10 +214,18 @@ class PostaDocumentos:
                 else:
                     raise Exception("Checkbox 'Data de vencimento' não encontrada.")
 
+                try:
+                    # Tenta interpretar a data como "YYYY-MM-DD"
+                    dt = datetime.strptime(self.data_vencimento, "%Y-%m-%d")
+                    data_formatada = dt.strftime("%d/%m/%Y")
+                except ValueError:
+                    # Se não estiver nesse formato, mantém a original
+                    data_formatada = self.data_vencimento
+
                 # Preencher o campo "Data de vencimento"
-                print(f"Inserindo a data de vencimento: {self.data_vencimento}")
-                pyautogui.typewrite(self.data_vencimento)
-                print(f"Data de vencimento preenchida: {self.data_vencimento}")
+                print(f"Inserindo a data de vencimento: {data_formatada}")
+                pyautogui.typewrite(data_formatada)
+                print(f"Data de vencimento preenchida: {data_formatada}")
             else:
                 print("Data de vencimento não fornecida. Pulando etapa.")
 
@@ -225,16 +241,14 @@ class PostaDocumentos:
 
     def selecionar_pasta_publicacao(self, janela_upload):
         """
-            Navega na estrutura de pastas para selecionar ou criar o diretório de destino.
+        Navega na estrutura de pastas para selecionar ou criar o diretório de destino,
+        utilizando a configuração do usuário.
         """
         try:
             print("Abrindo janela de seleção de pasta...")
-
-            # Clicar no botão "..."
             combo_pasta = janela_upload.child_window(auto_id="1001", control_type="ComboBox")
             if combo_pasta.exists(timeout=10):
                 combo_pasta.click_input()
-                print("Caixa de combinação clicada. Usando Tab para mover para o botão '...'.")
                 time.sleep(1)
                 pyautogui.press("tab")
                 time.sleep(1)
@@ -242,8 +256,6 @@ class PostaDocumentos:
                 print("Botão '...' clicado com sucesso para abrir a seleção de pasta.")
             else:
                 raise Exception("Caixa de combinação próxima ao campo de pasta não encontrada.")
-
-            # Conectar à janela de estrutura de pastas
             janela_pastas = janela_upload.child_window(title="Portal do Cliente - Estrutura de Pastas",
                                                        control_type="Window")
             if janela_pastas.exists(timeout=10):
@@ -252,46 +264,75 @@ class PostaDocumentos:
             else:
                 raise Exception("Janela 'Portal do Cliente - Estrutura de Pastas' não encontrada.")
 
-            # Caminho das pastas
-            caminho_pastas = [
-                ["Pessoal", "PESSOAL"],
-                [self.ano],
-                ["Folha de Pagamento", "FOLHA DE PAGAMENTO"]
-            ]
+            # Monta a estrutura de pastas com base na configuração do usuário
+            if "pastas_base" in self.config:
+                estrutura = self.config["pastas_base"]
+            elif "pastas_opcoes" in self.config:
+                if self.opcao and self.opcao in self.config["pastas_opcoes"]:
+                    estrutura = self.config["pastas_opcoes"][self.opcao]
+                else:
+                    # Se não for informado, pega a primeira opção disponível
+                    key = list(self.config["pastas_opcoes"].keys())[0]
+                    estrutura = self.config["pastas_opcoes"][key]
+            else:
+                raise Exception("Nenhuma configuração de pastas encontrada para o usuário.")
 
-            for i, nome_pasta in enumerate(caminho_pastas):
-                print(f"Tentando acessar a pasta: {nome_pasta}")
+            # Processa a estrutura, substituindo placeholders "ano" e "mes_ano"
+            caminho_pastas = []
+            for item in estrutura:
+                if isinstance(item, list):
+                    valor = item[1] if len(item) > 1 else item[0]
+                elif isinstance(item, str):
+                    valor = item
+                else:
+                    valor = str(item)
 
-                # Grid contendo as pastas
+                # Substituição dos placeholders com comparação case-insensitive
+                valor_normalizado = valor.lower()
+                if valor_normalizado == "ano":
+                    valor = str(self.ano)
+                elif valor_normalizado == "mes_ano":
+                    valor = str(self.mes_ano)
+
+                caminho_pastas.append(valor)
+
+            print(f"Estrutura de pastas definida: {caminho_pastas}")
+
+            # Percorre cada pasta da estrutura: tenta acessar ou cria se não existir.
+            for pasta in caminho_pastas:
+                print(f"Tentando acessar a pasta: {pasta}")
                 grid = janela_pastas.child_window(auto_id="dgvPastas", control_type="Table")
                 encontrado = False
-
-                # Normaliza os nomes das pastas para comparar
-                opcoes_nome_pasta_normalizadas = [nome.lower() for nome in nome_pasta]
-
                 for item in grid.descendants(control_type="DataItem"):
-                    value_legacy = item.legacy_properties().get("Value", "").strip().lower()
-                    value_value = item.window_text().strip().lower()
-
-                    # Verifica se a pasta foi encontrada
-                    if (value_legacy in opcoes_nome_pasta_normalizadas or
-                            value_value in opcoes_nome_pasta_normalizadas):
-                        item.double_click_input()  # Abre a pasta
-                        print(f"Pasta '{value_value}' acessada com sucesso.")
+                    valor_legacy = item.legacy_properties().get("Value", "").strip().lower()
+                    valor_text = item.window_text().strip().lower()
+                    print(f"DEBUG: legacy='{valor_legacy}', text='{valor_text}'")
+                    if valor_legacy == pasta.lower() or valor_text == pasta.lower():
+                        # Se for a última pasta (mes_ano) faça um clique único em vez de duplo
+                        if pasta.lower() == caminho_pastas[-1].lower():
+                            item.click_input()
+                            print(f"Pasta '{pasta}' selecionada com sucesso (clique único).")
+                        else:
+                            item.double_click_input()
+                            print(f"Pasta '{pasta}' acessada com sucesso.")
                         encontrado = True
                         break
-
                 if not encontrado:
-                    raise Exception(f"Pasta obrigatória '{nome_pasta}' não encontrada.")
-
-            # Busca ou cria a pasta "mes_ano"
-            nome_pasta_mes_ano = self.mes_ano.strip().lower()
-            if not self.buscar_pasta_mes_ano(janela_pastas, nome_pasta_mes_ano):
-                print(f"Pasta '{nome_pasta_mes_ano}' não encontrada. Criando nova pasta...")
-                self.criar_pasta_mes_ano(janela_pastas, nome_pasta_mes_ano)
-
-                # Seleciona novamente após criar
-                self.buscar_pasta_mes_ano(janela_pastas, nome_pasta_mes_ano)
+                    print(f"Pasta '{pasta}' não encontrada. Criando nova pasta...")
+                    self.criar_pasta(janela_pastas, pasta)
+                    # Após criar, tenta acessar novamente
+                    grid = janela_pastas.child_window(auto_id="dgvPastas", control_type="Table")
+                    for item in grid.descendants(control_type="DataItem"):
+                        valor_legacy = item.legacy_properties().get("Value", "").strip().lower()
+                        valor_text = item.window_text().strip().lower()
+                        if valor_legacy == pasta.lower() or valor_text == pasta.lower():
+                            if pasta.lower() == caminho_pastas[-1].lower():
+                                item.click_input()
+                                print(f"Pasta '{pasta}' criada e selecionada com sucesso (clique único).")
+                            else:
+                                item.double_click_input()
+                                print(f"Pasta '{pasta}' criada e acessada com sucesso.")
+                            break
 
             # Confirma a seleção clicando no botão OK
             self.confirmar_selecao_ok(janela_pastas)
@@ -300,7 +341,50 @@ class PostaDocumentos:
             print(f"Erro ao selecionar a pasta de publicação: {e}")
             raise
 
-    def buscar_pasta_mes_ano(self, janela_pastas, nome_pasta):
+    @staticmethod
+    def criar_pasta(janela_pastas, nome_pasta):
+        """
+        Cria uma nova pasta especificada no grid.
+        """
+        try:
+            # Clicar no botão "Incluir"
+            botao_incluir = janela_pastas.child_window(auto_id="btnIncluir", control_type="Button")
+            if not botao_incluir.exists(timeout=5):
+                raise Exception("Botão 'Incluir' não encontrado.")
+            botao_incluir.click_input()
+            time.sleep(1)
+
+            # Preencher o nome da nova pasta
+            campo_nome_pasta = janela_pastas.child_window(auto_id="txtNome", control_type="Edit")
+            if not campo_nome_pasta.exists(timeout=5):
+                raise Exception("Campo para nomear a nova pasta não encontrado.")
+            campo_nome_pasta.click_input()
+            campo_nome_pasta.type_keys(nome_pasta, with_spaces=True)
+            print(f"Nome da nova pasta inserido: {nome_pasta}")
+            time.sleep(1)
+
+            # Clicar no botão "Salvar"
+            botao_salvar = janela_pastas.child_window(auto_id="btnSalvar", control_type="Button")
+            if not botao_salvar.exists(timeout=5):
+                raise Exception("Botão 'Salvar' não encontrado.")
+            botao_salvar.click_input()
+            print(f"Pasta '{nome_pasta}' criada com sucesso.")
+            time.sleep(2)
+
+            # Atualiza o grid
+            botao_atualizar = janela_pastas.child_window(auto_id="btnAtualizar", control_type="Button")
+            if not botao_atualizar.exists(timeout=5):
+                raise Exception("Botão 'Atualizar' não encontrado.")
+            botao_atualizar.click_input()
+            print("Grid atualizado com sucesso.")
+            time.sleep(2)
+
+        except Exception as e:
+            print(f"Erro ao criar pasta '{nome_pasta}': {e}")
+            raise
+
+    @staticmethod
+    def buscar_pasta_mes_ano(janela_pastas, nome_pasta):
         """
         Busca a pasta especificada no grid e clica para selecionar.
         """
@@ -310,7 +394,7 @@ class PostaDocumentos:
             # Grid contendo as pastas
             grid = janela_pastas.child_window(auto_id="dgvPastas", control_type="Table")
             grid.set_focus()
-            pyautogui.press("home")  # Move para o topo
+            pyautogui.press("home")
             time.sleep(0.5)
 
             # Captura todas as pastas visíveis
@@ -345,7 +429,8 @@ class PostaDocumentos:
             print(f"Erro ao buscar pasta: {e}")
             raise
 
-    def criar_pasta_mes_ano(self, janela_pastas, nome_pasta):
+    @staticmethod
+    def criar_pasta_mes_ano(janela_pastas, nome_pasta):
         """
         Cria uma nova pasta especificada no grid.
         """
@@ -386,7 +471,8 @@ class PostaDocumentos:
             print(f"Erro ao criar pasta: {e}")
             raise
 
-    def confirmar_selecao_ok(self, janela_pastas):
+    @staticmethod
+    def confirmar_selecao_ok(janela_pastas):
         """
         Confirma a seleção clicando no botão OK.
         """
@@ -401,7 +487,8 @@ class PostaDocumentos:
             print(f"Erro ao clicar em OK: {e}")
             raise
 
-    def verificar_aviso_onvio(self):
+    @staticmethod
+    def verificar_aviso_onvio():
         """Verifica e interage com a janela de aviso sobre o Onvio."""
         try:
             print("Verificando se há uma janela de aviso sobre o Onvio...")
@@ -477,7 +564,8 @@ class PostaDocumentos:
             print(f"Erro ao tentar realizar login no Onvio: {e}")
             return False
 
-    def verificar_e_fechar_atencao(self):
+    @staticmethod
+    def verificar_e_fechar_atencao():
         """
         Verifica se a janela 'Atenção' está aberta e clica em 'OK'.
         """
